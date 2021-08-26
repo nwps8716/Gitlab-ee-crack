@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  ruby:
+    image: 'ruby:latest'
+    hostname: ruby
+    command: bash -c "cd /root/test && gem install gitlab-license && rm GitLabBV.gitlab-license license_key license_key.pub && ruby license.rb"
+    volumes:
+      - './:/root/test:Z'

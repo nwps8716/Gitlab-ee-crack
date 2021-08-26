@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  gitlab:
+    image: 'gitlab/gitlab-ee:13.11.4-ee.0'
+    restart: always
+    container_name: gitlab
+    hostname: gitlab-pid
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url '${GITLAB_DOMAIN}'
+        letsencrypt['enable'] = false
+        gitlab_rails['initial_root_password'] = '${GITLAB_ROOT_PASSWORD}'
+        gitlab_rails['gitlab_shell_ssh_port'] = '${GITLAB_HOST_SSH_PORT}'
+        gitlab_rails['omniauth_allow_single_sign_on'] = ['google_oauth2']
+        gitlab_rails['omniauth_block_auto_created_users'] = false
+        gitlab_rails['omniauth_sync_profile_from_provider'] = ['google_oauth2']
+        gitlab_rails['omniauth_sync_profile_attributes'] = ['name', 'email']
+        gitlab_rails['omniauth_providers'] = [
+          {
+             "name" => "google_oauth2",
+             "app_id" => "",
+             "app_secret" => "",
+             "args" => { "access_type" => "offline", "approval_prompt" => '' }
+          }
+        ]
+    ports:
+      - '${GITLAB_HOST_SSH_PORT}:22'
+      - '${GITLAB_HOST_HTTP_PORT}:80'
+      - '${GITLAB_HOST_HTTPS_PORT}:443'
+    volumes:
+    - './config:/etc/gitlab'
+    - './logs:/var/log/gitlab'
+    - './data:/var/opt/gitlab'
+    - './license-create/license_key.pub:/opt/gitlab/embedded/service/gitlab-rails/.license_encryption_key.pub'
+    #- './ultimate-setting.rb:/opt/gitlab/embedded/service/gitlab-rails/ee/app/models/license.rb'
